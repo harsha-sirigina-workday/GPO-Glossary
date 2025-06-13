@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPO Glossary Generator - All-in-One</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background: #f8f9fa;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        h1 {
+            color: #1C98E8;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .subtitle {
+            text-align: center;
+            color: #6c757d;
+            margin-bottom: 2rem;
+        }
+        .input-section {
+            margin-bottom: 2rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #1C98E8;
+            box-shadow: 0 0 0 3px rgba(28, 152, 232, 0.1);
+        }
+        .convert-btn {
+            background: #F38B00;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: block;
+            margin: 2rem auto;
+        }
+        .convert-btn:hover {
+            background: #e67e00;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(243, 139, 0, 0.3);
+        }
+        .convert-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .result {
+            margin-top: 2rem;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #c3e6cb;
+            margin-bottom: 1rem;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #f5c6cb;
+            margin-bottom: 1rem;
+        }
+        .output {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: monospace;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+        .copy-btn {
+            background: #1C98E8;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        .copy-btn:hover {
+            background: #0d7ec1;
+        }
+        .instructions {
+            background: #e3f2fd;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #1C98E8;
+            margin-top: 1rem;
+        }
+        .instructions h4 {
+            margin-top: 0;
+            color: #1C98E8;
+        }
+        .instructions ol {
+            margin-bottom: 0;
+        }
+        .instructions li {
+            margin-bottom: 0.5rem;
+        }
+        .step-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .step-info h3 {
+            margin-top: 0;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GPO Glossary Generator</h1>
+        <p class="subtitle">All-in-One: Convert Google Sheets Data Directly to HTML Glossary</p>
+        
+        <div class="step-info">
+            <h3>📋 How to Use:</h3>
+            <ol>
+                <li><strong>Copy from Google Sheets:</strong> Select all your glossary data (including headers) and copy it</li>
+                <li><strong>Paste below:</strong> Paste the copied data into the text area</li>
+                <li><strong>Generate:</strong> Click "Generate HTML Glossary" - it will convert and format everything automatically</li>
+                <li><strong>Copy & Use:</strong> Copy the generated HTML and paste it into your CMS widget</li>
+            </ol>
+        </div>
+
+        <div class="input-section">
+            <label for="csvInput">Paste your Google Sheets data here:</label>
+            <textarea id="csvInput" placeholder="Paste your copied Google Sheets data here...
+
+Expected format with these columns:
+Term Name | Acronyms & Abbreviations | Partner Owned | Business Definition | Business Context/ Purpose | Synonyms | Business Rules | Examples of Usage | Business Owner | Data Steward | Related Business Terms | Parent Terms | Child Terms | Last Reviewed Date | Approval Status"></textarea>
+        </div>
+
+        <button class="convert-btn" onclick="generateGlossary()">Generate HTML Glossary</button>
+
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        function parseCSVData(csvText) {
+            const lines = csvText.trim().split('\n');
+            if (lines.length < 2) {
+                throw new Error('Data must contain at least a header row and one data row');
+            }
+
+            // Parse header row
+            const headers = parseCSVLine(lines[0]);
+            console.log('Headers found:', headers);
+
+            // Parse data rows
+            const data = [];
+            for (let i = 1; i < lines.length; i++) {
+                if (lines[i].trim()) {
+                    const values = parseCSVLine(lines[i]);
+                    const row = {};
+                    
+                    // Map values to headers
+                    headers.forEach((header, index) => {
+                        const value = values[index] || '';
+                        row[header] = value === 'NULL' ? '' : value;
+                    });
+                    
+                    // Only add rows that have a term name
+                    if (row['Term Name'] && row['Term Name'].trim()) {
+                        data.push(row);
+                    }
+                }
+            }
+
+            console.log(`Parsed ${data.length} terms`);
+            return data;
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            let i = 0;
+
+            while (i < line.length) {
+                const char = line[i];
+                const nextChar = line[i + 1];
+
+                if (char === '"') {
+                    if (inQuotes && nextChar === '"') {
+                        // Escaped quote
+                        current += '"';
+                        i += 2;
+                    } else {
+                        // Toggle quote state
+                        inQuotes = !inQuotes;
+                        i++;
+                    }
+                } else if (char === '\t' && !inQuotes) {
+                    // Only tab is field separator - commas are treated as regular text
+                    result.push(current.trim());
+                    current = '';
+                    i++;
+                } else {
+                    current += char;
+                    i++;
+                }
+            }
+
+            // Add the last field
+            result.push(current.trim());
+            return result;
+        }
+
+        function generateGlossaryHTML(glossaryData) {
+            // Group data by first letter
+            const groupedData = {};
+            glossaryData.forEach(term => {
+                const firstLetter = term["Term Name"]?.charAt(0).toUpperCase() || 'Z';
+                if (!groupedData[firstLetter]) {
+                    groupedData[firstLetter] = [];
+                }
+                groupedData[firstLetter].push(term);
+            });
+            
+            // Generate complete A-Z alphabet
+            const allLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+            
+            // Ensure all letters exist in groupedData (even if empty)
+            allLetters.forEach(letter => {
+                if (!groupedData[letter]) {
+                    groupedData[letter] = [];
+                }
+            });
+           
+           let html = `
+<style>
+    .gpo-glossary {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        line-height: 1.6;
+        color: #333;
+        background: white;
+    }
+        .gpo-header {
+        background: white;
+        color: #1C98E8;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+   .gpo-title {
+       font-size: 2.5rem;
+       margin: 0 0 0.5rem 0;
+       color: #1C98E8;
+   }
+   .gpo-subtitle {
+       font-size: 1.2rem;
+       margin: 0;
+       color: #6c757d !important;
+   }
+        .gpo-alphabet-nav {
+        margin: 2rem 0;
+        padding: 1rem 0;
+        text-align: center;
+    }
+    .gpo-alphabet-row {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+         .gpo-letter-btn {
+        padding: 8px 4px;
+        background: transparent;
+        border: none;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        color: #F38B00;
+        transition: all 0.2s ease;
+        font-size: 1rem;
+        cursor: pointer;
+    }
+    .gpo-letter-btn:hover {
+        text-decoration: none;
+        color: #1C98E8;
+        transform: scale(1.1);
+    }
+    .gpo-letter-btn.empty {
+        color: #adb5bd;
+        cursor: default;
+    }
+    .gpo-letter-btn.empty:hover {
+        color: #adb5bd;
+        transform: none;
+    }
+    .gpo-letter-btn.active {
+        color: #1C98E8;
+        font-weight: 700;
+    }
+        .gpo-letter-section {
+        margin: 2rem 0;
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid #e9ecef;
+        display: flex;
+        align-items: flex-start;
+        gap: 1.5rem;
+    }
+    .gpo-letter-section.empty {
+        background: #f8f9fa;
+        border: 1px dashed #dee2e6;
+    }
+    .gpo-letter-header {
+        flex-shrink: 0;
+        width: 60px;
+        text-align: center;
+    }
+    .gpo-letter-symbol {
+        font-size: 3rem;
+        font-weight: 900;
+        color: #F38B00;
+        line-height: 1;
+        margin-bottom: 0.25rem;
+    }
+    .gpo-letter-count {
+        font-size: 0.8rem;
+        color: #6c757d;
+        font-weight: 500;
+    }
+    .gpo-letter-container {
+        flex: 1;
+    }
+    .gpo-letter-container.empty {
+        text-align: center;
+        padding: 2rem 0;
+        color: #6c757d;
+        font-style: italic;
+    }
+        .gpo-term-card {
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+    .gpo-term-card:hover {
+        border-color: #1C98E8;
+        box-shadow: 0 2px 8px rgba(28, 152, 232, 0.15);
+        transform: translateY(-1px);
+    }
+    .gpo-term-details {
+        border: none;
+        margin: 0;
+        padding: 0;
+    }
+         .gpo-term-header {
+         padding: 0.5rem 0.75rem;
+         background: white;
+         cursor: pointer;
+         transition: background-color 0.2s ease;
+         list-style: none;
+         outline: none;
+         position: relative;
+         min-height: 65px;
+         display: flex;
+         flex-direction: column;
+         justify-content: flex-start;
+     }
+    .gpo-term-header:hover {
+        background: #f8f9fa;
+    }
+    .gpo-term-header::-webkit-details-marker {
+        display: none;
+    }
+    .gpo-term-header::before {
+        content: '▶';
+        position: absolute;
+        right: 0.75rem;
+        top: 0.5rem;
+        color: #F38B00;
+        font-size: 0.9rem;
+        transition: transform 0.2s ease;
+    }
+    .gpo-term-details[open] .gpo-term-header::before {
+        transform: rotate(90deg);
+    }
+    .gpo-term-name {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1C98E8;
+        margin: 0 0 0.15rem 0;
+        line-height: 1.2;
+        padding-right: 1.5rem;
+    }
+         .gpo-term-preview {
+         color: #6c757d;
+         font-size: 0.85rem;
+         margin: 0;
+         line-height: 1.4;
+         padding-right: 1.5rem;
+         display: -webkit-box;
+         -webkit-line-clamp: 2;
+         -webkit-box-orient: vertical;
+         overflow: hidden;
+         text-overflow: ellipsis;
+         max-height: 2.38rem;
+     }
+    .gpo-term-content {
+        padding: 1rem;
+        background: white;
+    }
+   .gpo-category {
+       margin-bottom: 2rem;
+   }
+   .gpo-category-details {
+       border: none;
+       margin: 0;
+       padding: 0;
+   }
+   .gpo-category-title {
+       font-size: 1.3rem;
+       font-weight: 600;
+       color: #0057AE;
+       margin-bottom: 1rem;
+       padding: 0.5rem 0;
+       border-bottom: 2px solid #1C98E8;
+       display: flex;
+       align-items: center;
+       cursor: pointer;
+       list-style: none;
+       outline: none;
+       position: relative;
+       transition: color 0.3s ease;
+   }
+   .gpo-category-title:hover {
+       color: #1C98E8;
+   }
+   .gpo-category-title::-webkit-details-marker {
+       display: none;
+   }
+   .gpo-category-title::before {
+       content: '▶';
+       position: absolute;
+       right: 0;
+       top: 50%;
+       transform: translateY(-50%);
+       color: #F38B00;
+       font-size: 1rem;
+       transition: transform 0.3s ease;
+   }
+   .gpo-category-details[open] .gpo-category-title::before {
+       transform: translateY(-50%) rotate(90deg);
+   }
+   .gpo-category-icon {
+       margin-right: 0.5rem;
+       font-size: 1.2rem;
+   }
+   .gpo-category-content {
+       padding-top: 1rem;
+   }
+   .gpo-field-group {
+       margin-bottom: 1.5rem;
+   }
+   .gpo-field-label {
+       font-weight: 600;
+       color: #495057;
+       margin-bottom: 0.5rem;
+       display: block;
+   }
+   .gpo-field-value {
+       color: #6c757d;
+       padding: 0.5rem;
+       background: rgba(28, 152, 232, 0.05);
+       border-radius: 6px;
+       border-left: 4px solid #1C98E8;
+   }
+   .gpo-field-value.empty {
+       color: #adb5bd;
+       font-style: italic;
+   }
+   .gpo-tags {
+       display: flex;
+       flex-wrap: wrap;
+       gap: 0.5rem;
+       margin-top: 0.5rem;
+   }
+   .gpo-tag {
+       background: #F38B00;
+       color: white;
+       padding: 0.25rem 0.75rem;
+       border-radius: 15px;
+       font-size: 0.85rem;
+       font-weight: 500;
+   }
+   @media (max-width: 768px) {
+       .gpo-glossary { padding: 10px; }
+       .gpo-title { font-size: 2rem; }
+       .gpo-alphabet-nav { gap: 3px; }
+       .gpo-letter-btn { padding: 8px 12px; min-width: 40px; font-size: 0.9rem; }
+       .gpo-term-name { font-size: 1.3rem; }
+   }
+</style>
+
+<div class="gpo-glossary">
+    <div class="gpo-header">
+        <h1 class="gpo-title">GPO Glossary</h1>
+        <p class="gpo-subtitle">Global Partners Organization - Business Terms & Definitions</p>
+    </div>
+    
+    <div class="gpo-alphabet-nav">
+        <div class="gpo-alphabet-row">
+            ${allLetters.map(letter => {
+                const isEmpty = groupedData[letter].length === 0;
+                return `<a href="#letter-${letter}" class="gpo-letter-btn ${isEmpty ? 'empty' : ''}">${letter}</a>`;
+            }).join('')}
+        </div>
+    </div>
+`;
+
+                        // Generate content for each letter
+            allLetters.forEach(letter => {
+                const terms = groupedData[letter].sort((a, b) => 
+                    (a["Term Name"] || '').localeCompare(b["Term Name"] || '')
+                );
+                
+                if (terms.length === 0) {
+                    // Empty letter section
+                    html += `
+        <div class="gpo-letter-section empty" id="letter-${letter}">
+            <div class="gpo-letter-header">
+                <div class="gpo-letter-symbol">${letter}</div>
+                <div class="gpo-letter-count">0 terms</div>
+            </div>
+            <div class="gpo-letter-container empty">
+                No terms found for letter ${letter}
+            </div>
+        </div>
+`;
+                } else {
+                    // Letter section with terms
+                    html += `
+        <div class="gpo-letter-section" id="letter-${letter}">
+            <div class="gpo-letter-header">
+                <div class="gpo-letter-symbol">${letter}</div>
+                <div class="gpo-letter-count">${terms.length} term${terms.length !== 1 ? 's' : ''}</div>
+            </div>
+            <div class="gpo-letter-container">
+`;
+                    
+                                         // Generate terms for this letter
+                     terms.forEach(term => {
+                         const termName = term["Term Name"] || 'Unnamed Term';
+                         const businessDef = term["Business Definition"] || '';
+                         const businessContext = term["Business Context/ Purpose"] || '';
+                         const termOwner = term["Business Owner"] || '';
+                         const termSteward = term["Data Steward"] || '';
+                         const relatedTerms = term["Related Business Terms"] || '';
+                         const parentTerms = term["Parent Terms"] || '';
+                         const childTerms = term["Child Terms"] || '';
+                         const synonyms = term["Synonyms"] || '';
+                         const acronyms = term["Acronyms & Abbreviations"] || '';
+                         const partnerOwned = term["Partner Owned"] || '';
+                         const businessRules = term["Business Rules"] || '';
+                         const examplesOfUsage = term["Examples of Usage"] || '';
+                         const approvalStatus = term["Approval Status"] || '';
+                         const lastReviewedDate = term["Last Reviewed Date"] || '';
+
+                        html += `
+                <div class="gpo-term-card">
+                    <details class="gpo-term-details">
+                        <summary class="gpo-term-header">
+                            <div class="gpo-term-name">${termName}</div>
+                            <div class="gpo-term-preview">${businessDef}</div>
+                        </summary>
+                        <div class="gpo-term-content">
+                            <div class="gpo-category">
+                                <details class="gpo-category-details">
+                                    <summary class="gpo-category-title">
+                                        <span class="gpo-category-icon">📚</span>
+                                        Clear and Concise Business Definitions
+                                    </summary>
+                                                                         <div class="gpo-category-content">
+                                         <div class="gpo-field-group">
+                                             <label class="gpo-field-label">Business Definition:</label>
+                                             <div class="gpo-field-value ${businessDef ? '' : 'empty'}">
+                                                 ${businessDef || 'No definition provided'}
+                                             </div>
+                                         </div>
+                                         <div class="gpo-field-group">
+                                             <label class="gpo-field-label">Acronyms & Abbreviations:</label>
+                                             <div class="gpo-field-value ${acronyms ? '' : 'empty'}">
+                                                 ${acronyms || 'No acronyms'}
+                                             </div>
+                                         </div>
+                                         <div class="gpo-field-group">
+                                             <label class="gpo-field-label">Business Context/ Purpose:</label>
+                                             <div class="gpo-field-value ${businessContext ? '' : 'empty'}">
+                                                 ${businessContext || 'No context provided'}
+                                             </div>
+                                         </div>
+                                         <div class="gpo-field-group">
+                                             <label class="gpo-field-label">Business Rules:</label>
+                                             <div class="gpo-field-value ${businessRules ? '' : 'empty'}">
+                                                 ${businessRules || 'No business rules specified'}
+                                             </div>
+                                         </div>
+                                         <div class="gpo-field-group">
+                                             <label class="gpo-field-label">Examples of Usage:</label>
+                                             <div class="gpo-field-value ${examplesOfUsage ? '' : 'empty'}">
+                                                 ${examplesOfUsage || 'No examples provided'}
+                                             </div>
+                                         </div>
+                                     </div>
+                                </details>
+                            </div>
+
+                            <div class="gpo-category">
+                                <details class="gpo-category-details">
+                                    <summary class="gpo-category-title">
+                                        <span class="gpo-category-icon">👥</span>
+                                        Ownership and Stewardship
+                                    </summary>
+                                                                         <div class="gpo-category-content">
+                                         <div class="gpo-field-group">
+                                             <label class="gpo-field-label">Business Owner:</label>
+                                             <div class="gpo-field-value ${termOwner ? '' : 'empty'}">
+                                                 ${termOwner || 'No owner assigned'}
+                                             </div>
+                                         </div>
+                                         <div class="gpo-field-group">
+                                             <label class="gpo-field-label">Data Steward:</label>
+                                             <div class="gpo-field-value ${termSteward ? '' : 'empty'}">
+                                                 ${termSteward || 'No steward assigned'}
+                                             </div>
+                                         </div>
+                                     </div>
+                                </details>
+                            </div>
+
+                            <div class="gpo-category">
+                                <details class="gpo-category-details">
+                                    <summary class="gpo-category-title">
+                                        <span class="gpo-category-icon">🔗</span>
+                                        Relationships and Hierarchy
+                                    </summary>
+                                    <div class="gpo-category-content">
+                                                                                 <div class="gpo-field-group">
+                                             <label class="gpo-field-label">Related Business Terms:</label>
+                                             <div class="gpo-field-value ${relatedTerms ? '' : 'empty'}">
+                                                 ${relatedTerms || 'No related terms'}
+                                             </div>
+                                         </div>
+                                        <div class="gpo-field-group">
+                                            <label class="gpo-field-label">Parent Terms:</label>
+                                            <div class="gpo-field-value ${parentTerms ? '' : 'empty'}">
+                                                ${parentTerms || 'No parent terms'}
+                                            </div>
+                                        </div>
+                                        <div class="gpo-field-group">
+                                            <label class="gpo-field-label">Child Terms:</label>
+                                            <div class="gpo-field-value ${childTerms ? '' : 'empty'}">
+                                                ${childTerms || 'No child terms'}
+                                            </div>
+                                        </div>
+                                                                                 <div class="gpo-field-group">
+                                             <label class="gpo-field-label">Synonyms:</label>
+                                             <div class="gpo-field-value ${synonyms ? '' : 'empty'}">
+                                                 ${synonyms || 'No synonyms'}
+                                             </div>
+                                         </div>
+                                    </div>
+                                </details>
+                            </div>
+
+                            <div class="gpo-category">
+                                <details class="gpo-category-details">
+                                    <summary class="gpo-category-title">
+                                        <span class="gpo-category-icon">⚖️</span>
+                                        Governance Information
+                                    </summary>
+                                                                         <div class="gpo-category-content">
+                                         <div class="gpo-field-group">
+                                             <label class="gpo-field-label">Approval Status:</label>
+                                             <div class="gpo-field-value ${approvalStatus ? '' : 'empty'}">
+                                                 ${approvalStatus || 'Not specified'}
+                                             </div>
+                                         </div>
+                                         <div class="gpo-field-group">
+                                             <label class="gpo-field-label">Last Reviewed Date:</label>
+                                             <div class="gpo-field-value ${lastReviewedDate ? '' : 'empty'}">
+                                                 ${lastReviewedDate || 'No review date'}
+                                             </div>
+                                         </div>
+                                     </div>
+                                </details>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+`;
+                    });
+
+                    html += `
+            </div>
+        </div>
+`;
+                }
+            });
+
+            html += `
+</div>
+`;
+
+            return html;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function generateGlossary() {
+            const csvInput = document.getElementById('csvInput').value.trim();
+            const resultDiv = document.getElementById('result');
+
+            if (!csvInput) {
+                resultDiv.innerHTML = '<div class="error">Please paste your Google Sheets data first.</div>';
+                return;
+            }
+
+            try {
+                // Parse the CSV data
+                const glossaryData = parseCSVData(csvInput);
+                
+                if (glossaryData.length === 0) {
+                    resultDiv.innerHTML = '<div class="error">No valid terms found in the data. Please check your format.</div>';
+                    return;
+                }
+                
+                // Generate static HTML
+                const staticHTML = generateGlossaryHTML(glossaryData);
+                
+                resultDiv.innerHTML = `
+                    <div class="success">Successfully generated HTML glossary for ${glossaryData.length} terms!</div>
+                    <h3>Generated HTML (Copy this into your CMS widget):</h3>
+                    <div class="output" id="outputCode">${escapeHtml(staticHTML)}</div>
+                    <button class="copy-btn" onclick="copyToClipboard()">Copy HTML</button>
+                    <div class="instructions">
+                        <h4>Usage Instructions:</h4>
+                        <ol>
+                            <li>Copy the HTML code above</li>
+                            <li>Go to your CMS/widget editor</li>
+                            <li>Paste the HTML directly into an HTML widget</li>
+                            <li>Save/publish - it should work immediately!</li>
+                        </ol>
+                    </div>
+                `;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error processing data: ${error.message}</div>`;
+            }
+        }
+
+        function copyToClipboard() {
+            const outputCode = document.getElementById('outputCode');
+            const textToCopy = outputCode.textContent;
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const copyBtn = document.querySelector('.copy-btn');
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = 'Copied!';
+                copyBtn.style.background = '#28a745';
+                
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                    copyBtn.style.background = '#1C98E8';
+                }, 2000);
+            }).catch(err => {
+                alert('Failed to copy to clipboard. Please select and copy manually.');
+            });
+        }
+    </script>
+</body>
+</html>

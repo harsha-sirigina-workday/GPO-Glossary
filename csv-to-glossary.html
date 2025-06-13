@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV to Glossary Converter</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        .instructions {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #007bff;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 1rem 0;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        .output {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 2rem;
+            font-family: monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .copy-btn {
+            background: #28a745;
+            margin-top: 1rem;
+        }
+        
+        .copy-btn:hover {
+            background: #218838;
+        }
+        
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+        
+        .success {
+            color: #155724;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CSV to Glossary Data Converter</h1>
+        
+        <div class="instructions">
+            <h3>Instructions:</h3>
+            <ol>
+                <li>Open your Google Sheet with glossary data</li>
+                <li>Select all data (including headers)</li>
+                <li>Copy the data (Ctrl+C or Cmd+C)</li>
+                <li>Paste it into the text area below</li>
+                <li>Click "Convert to JSON"</li>
+                <li>Copy the generated JavaScript code</li>
+                <li>Replace the glossaryData array in index.html with the new data</li>
+            </ol>
+            <p><strong>Expected columns:</strong> Term Name, Acronyms & Abbreviations, Partner Owned, Business Definition, Business Context/ Purpose, Synonyms, Business Rules, Examples of Usage, Business Owner, Data Steward, Related Business Terms, Parent Terms, Child Terms, Last Reviewed Date, Approval Status</p>
+        </div>
+        
+        <h3>Paste your CSV data here:</h3>
+        <textarea id="csvInput" placeholder="Paste your CSV data from Google Sheets here..."></textarea>
+        
+        <button onclick="convertData()">Convert to JSON</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function convertData() {
+            const csvData = document.getElementById('csvInput').value.trim();
+            const resultDiv = document.getElementById('result');
+            
+            if (!csvData) {
+                resultDiv.innerHTML = '<div class="error">Please paste some CSV data first.</div>';
+                return;
+            }
+            
+            try {
+                const lines = csvData.split('\n').filter(line => line.trim());
+                if (lines.length < 2) {
+                    throw new Error('Data must have at least a header row and one data row.');
+                }
+                
+                // Detect if data is tab-separated or comma-separated
+                const firstLine = lines[0];
+                const hasMoreTabs = (firstLine.split('\t').length > firstLine.split(',').length);
+                const delimiter = hasMoreTabs ? '\t' : ',';
+                
+                console.log(`Detected delimiter: ${delimiter === '\t' ? 'TAB' : 'COMMA'}`);
+                
+                // Parse headers and rows
+                const headers = parseDelimitedLine(lines[0], delimiter);
+                const rows = lines.slice(1).map(line => parseDelimitedLine(line, delimiter));
+                
+                console.log('Headers:', headers);
+                console.log('First row:', rows[0]);
+                
+                // Convert to JSON objects
+                const jsonData = rows.map(row => {
+                    const obj = {};
+                    headers.forEach((header, index) => {
+                        const value = row[index] ? row[index].trim() : '';
+                        obj[header.trim()] = value === 'NULL' ? '' : value;
+                    });
+                    return obj;
+                });
+                
+                // Generate JavaScript code
+                const jsCode = `const glossaryData = ${JSON.stringify(jsonData, null, 4)};`;
+                
+                resultDiv.innerHTML = `
+                    <div class="success">Successfully converted ${jsonData.length} terms! (Delimiter: ${delimiter === '\t' ? 'TAB' : 'COMMA'})</div>
+                    <h3>Generated JavaScript Code:</h3>
+                    <div class="output" id="outputCode">${jsCode}</div>
+                    <button class="copy-btn" onclick="copyToClipboard()">Copy Code</button>
+                    <div class="instructions">
+                        <h4>Next Steps:</h4>
+                        <ol>
+                            <li>Copy the code above</li>
+                            <li>Open index.html in a text editor</li>
+                            <li>Find the line that starts with "const glossaryData = ["</li>
+                            <li>Replace the entire glossaryData array with the code you copied</li>
+                            <li>Save the file and refresh your browser</li>
+                        </ol>
+                    </div>
+                `;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error converting data: ${error.message}<br><br>Debug info: First few characters of your data: "${csvData.substring(0, 100)}..."</div>`;
+            }
+        }
+        
+        function parseDelimitedLine(line, delimiter) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === delimiter && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            
+            result.push(current);
+            return result.map(field => field.replace(/^"(.*)"$/, '$1')); // Remove surrounding quotes
+        }
+        
+        function copyToClipboard() {
+            const outputCode = document.getElementById('outputCode');
+            const textArea = document.createElement('textarea');
+            textArea.value = outputCode.textContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            // Show feedback
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = 'Copied!';
+            btn.style.background = '#20c997';
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '#28a745';
+            }, 2000);
+        }
+    </script>
+</body>
+</html> 

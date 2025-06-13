@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPO Glossary - Global Partners Organization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .search-container {
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: 500px;
+            padding: 12px 20px;
+            font-size: 1.1rem;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-box:focus {
+            border-color: #667eea;
+        }
+
+        .alphabet-nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+            margin: 2rem 0;
+            padding: 1rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .letter-btn {
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 45px;
+            text-align: center;
+        }
+
+        .letter-btn:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .letter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .letter-section {
+            margin: 2rem 0;
+            display: none;
+        }
+
+        .letter-section.active {
+            display: block;
+        }
+
+        .letter-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .term-card {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .term-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .term-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            cursor: pointer;
+            border-bottom: 1px solid #dee2e6;
+            transition: background-color 0.3s ease;
+        }
+
+        .term-header:hover {
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+        }
+
+        .term-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .term-preview {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .term-content {
+            padding: 1.5rem;
+            display: none;
+        }
+
+        .term-content.active {
+            display: block;
+        }
+
+        .category {
+            margin-bottom: 2rem;
+        }
+
+        .category-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 1rem;
+            padding: 0.5rem 0;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            align-items: center;
+        }
+
+        .category-icon {
+            margin-right: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .field-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .field-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .field-value {
+            color: #6c757d;
+            padding: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .field-value.empty {
+            color: #adb5bd;
+            font-style: italic;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .tag {
+            background: #667eea;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+
+        .stats {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .expand-all {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 0 0.5rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .expand-all:hover {
+            background: #218838;
+        }
+
+        .collapse-all {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 0 0.5rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .collapse-all:hover {
+            background: #c82333;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .alphabet-nav {
+                gap: 3px;
+            }
+            
+            .letter-btn {
+                padding: 8px 12px;
+                min-width: 40px;
+                font-size: 0.9rem;
+            }
+            
+            .term-name {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>GPO Glossary</h1>
+            <p class="subtitle">Global Partners Organization - Business Terms & Definitions</p>
+        </header>
+
+        <div class="search-container">
+            <input type="text" class="search-box" placeholder="Search terms and definitions..." id="searchBox">
+        </div>
+
+        <div class="stats" id="stats">
+            <strong id="totalTerms">0</strong> terms available
+            <button class="expand-all" onclick="expandAll()">Expand All</button>
+            <button class="collapse-all" onclick="collapseAll()">Collapse All</button>
+        </div>
+
+        <div class="alphabet-nav" id="alphabetNav">
+            <!-- Letters will be generated dynamically -->
+        </div>
+
+        <div id="glossaryContent">
+            <!-- Content will be generated dynamically -->
+        </div>
+
+        <div class="no-results" id="noResults" style="display: none;">
+            <h3>No terms found</h3>
+            <p>Try adjusting your search or browse by letter above.</p>
+        </div>
+    </div>
+
+    <script>
+        // Sample data structure - replace this with your actual data
+        const glossaryData = [
+    {
+        "Term Name": "Advisory Partners",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "Partners (neutral party) that guide customers through digital acceleration strategy, product selection, and change management.",
+        "Business Context/ Purpose": "To provide independent, expert guidance to customers, helping them make informed decisions about their digital transformation and Workday product adoption. They help ensure successful implementation and value realization without bias towards a specific vendor solution initially.",
+        "Synonyms": "Strategy Consultants, Transformation Advisors, Digital Advisors",
+        "Business Rules": "Engagement models, conflict of interest policies. Internal Workday Information.",
+        "Examples of Usage": "We engaged Advisory Partners to help define our HR technology roadmap before selecting Workday. Advisory Partners facilitated workshops to ensure stakeholder alignment.",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "Partner, GSI(s), Industry Accelerator, Services Track, Partner Manager",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Badges",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "Externally visible qualifications, that show a Partners' proficiency in Workday Programs. Badges signals Workday qualifications to Customers and help Partners sell their products and services.",
+        "Business Context/ Purpose": "To provide a clear and recognizable way for partners to demonstrate their expertise and specialization in specific Workday products or programs, thereby building trust with potential customers and enhancing their marketability.",
+        "Synonyms": "Certifications (context-dependent), Accreditations, Specializations",
+        "Business Rules": "Criteria for earning badges, renewal requirements. Internal Workday Information.",
+        "Examples of Usage": "The partner proudly displayed their 'Workday Financials Certified' badge on their website. Customers often look for partners with specific Badges relevant to their needs.",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "Partner, Innovation Track, Sales Track, Services Track, Tiers, Partner Ops Team",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Global Manager (Channels Teams)",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "Focused on Channels, Channel Managers define and execute the strategy for each growth Channel. They recruit new Partners, onboard and develop Partners, and execute with those Partners to deliver incremental ACV and revenue for specific growth markets.",
+        "Business Context/ Purpose": "To lead and coordinate channel strategies and teams on a global scale, ensuring alignment and consistent execution of partner programs across different regions to achieve worldwide ACV and revenue targets.",
+        "Synonyms": "Head of Global Channels, Director of Global Partner Programs",
+        "Business Rules": "Global partner program policies, regional adaptations. Internal Workday Information.",
+        "Examples of Usage": "The Global Manager for Channels Teams is presenting the FY25 partner strategy next week. She works closely with regional Channel Managers to ensure global consistency.",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "Channel Manager (Channels Team), Partner, Partner Business Plan, ACV, Segments/Regions",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Global Payroll Partners",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "Partners that make it easy to integrate third-party payroll solutions using certified integrations from Workday.",
+        "Business Context/ Purpose": "To extend Workday's payroll capabilities globally by collaborating with specialized local payroll providers. This ensures customers can use Workday HCM while complying with diverse, country-specific payroll regulations through certified integrations.",
+        "Synonyms": "Payroll Integration Partners",
+        "Business Rules": "Certification process for integrations, data security standards. Internal Workday Information.",
+        "Examples of Usage": "We are leveraging a Global Payroll Partner for our operations in Brazil. The list of certified Global Payroll Partners is available on the Workday community.",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "Partner, Core HCM, Services Track, Software Partners - Innovate Partners",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Global System Integrators",
+        "Acronyms & Abbreviations": "GSI",
+        "Partner Owned": "x",
+        "Business Definition": "Generally, a firm with around 100,000 employees, a true global presence, and a significant portion of income from managerial consulting, technology consulting and implementations. This excludes advisory/strategy-only firms like McKinsey and Booz.",
+        "Business Context/ Purpose": "To identify and categorize very large, globally operating system integrators that have significant consulting and implementation practices. These partners are crucial for large-scale Workday deployments and strategic initiatives.",
+        "Synonyms": "Global System Integrator(s)",
+        "Business Rules": "Specific criteria for GSI designation (revenue, employee count, global reach, service mix). Internal Workday Information.",
+        "Examples of Usage": "We are co-selling with three key GSIs on this major account. The GSI partner is leading the implementation for the client's global Workday rollout.",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "Partner, Advisory Partners (GSIs often also provide advisory), Industry Accelerator, Partner Manager",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Industry Accelerator",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "Announced at Workday Rising in September 2022, industry accelerators are Workday partners—initially Accenture, Deloitte, KPMG, and PwC—targeted at helping banking, healthcare, insurance, and technology companies speed their enterprise cloud transformation efforts.",
+        "Business Context/ Purpose": "To expedite Workday implementations and digital transformation for customers in specific industries by leveraging pre-configured solutions, best practices, and specialized expertise developed by key partners.",
+        "Synonyms": "Vertical Solutions, Pre-packaged Industry Solutions",
+        "Business Rules": "Scope of accelerator, target industries, partner involvement. Internal Workday Information.",
+        "Examples of Usage": "The Healthcare Industry Accelerator includes pre-built reports and configurations specific to hospital needs. Our GSI partner proposed using an Industry Accelerator to shorten our deployment time.",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "Partner, GSI(s), Advisory Partners, Services Track, Level 3–5 Industries, Frontline Worker Industries",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Innovation Track",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "Innovation Track is the name of the Partner Programs designed to help Partners build and sell on Workday. These may include Workday Configuration packages, Integration adapters, and Applications.",
+        "Business Context/ Purpose": "To foster an ecosystem of partners who develop and offer new solutions, configurations, integrations, and applications that extend Workday's capabilities and provide additional value to customers.",
+        "Synonyms": "Partner Development Program, Solution Development Program",
+        "Business Rules": "Program entry criteria, IP ownership, commercialization rules. Internal Workday Information.",
+        "Examples of Usage": "Software Partners on the Innovation Track are developing new connectors for niche industry systems. The Innovation Track provides resources for partners to build on Workday Extend.",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "Partner, Badges, Partner Ops Team, Software Partners - Innovate Partners, Tracks",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Managed Service Provided Partners",
+        "Acronyms & Abbreviations": "MSPP",
+        "Partner Owned": "x",
+        "Business Definition": "Partners that have knowledge, skills, and resources to reduce costs, determine recruitment strategies, and mitigate risk.",
+        "Business Context/ Purpose": "To collaborate with partners who can take on the ongoing management and operational aspects of a customer's Workday environment or related processes (like recruitment). This allows customers to focus on their core business.",
+        "Synonyms": "Managed Service Providers (MSPs), Outsourcing Partners (context-dependent)",
+        "Business Rules": "Scope of services, SLAs, certification requirements. Internal Workday Information.",
+        "Examples of Usage": "We are evaluating MSPP options for ongoing Workday application support. Some MSPPs offer specialized recruitment services integrated with Workday Recruiting.",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "Partner, Services Track",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Partner",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "Entities that offer consulting, implementation and ongoing management services to support the full Workday platform. Examples of current partners include Accenture, Deloitte, KPMG, and PwC. Our partners are a key part of our growth and a focus of a transformational initiative: Build our partner ecosystem to support Workday’s scale, solutions, reach, and growth.",
+        "Business Context/ Purpose": "To collaborate with third-party organizations that provide a range of services to Workday customers, including consulting, implementation, and managed services. These partners are essential for Workday's ecosystem, scalability, and market reach.",
+        "Synonyms": "Alliances, System Integrators (SIs), Consulting Firms, Service Providers",
+        "Business Rules": "Partner program tiers, certification requirements, rules of engagement. Internal Workday Information.",
+        "Examples of Usage": "We work closely with our implementation Partner to ensure a smooth deployment. Workday is investing heavily in its Partner ecosystem.",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "Advisory Partners, GSI(s), Global Payroll Partners, Industry Accelerator, Managed Service Provided Partners (MSPP), Partner Business Plan, Partner Ops Team, Software Partners - Innovate Partners, Tracks",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Partner Business Plan",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "Partner Business Plans are documents used to define our plans to execute with Partners in each Financial Year. The Partner Ops team maintains templates of these Plans and Partner Managers, Partner Innovation Managers, and Channel Managers define these plans for the top Partners in their respective teams.",
+        "Business Context/ Purpose": "To create a formal, documented strategy and set of objectives for collaborating with key partners over a fiscal year. These plans align goals, define activities, and ensure mutual accountability between Workday and its partners.",
+        "Synonyms": "Joint Business Plan (JBP), Partner Account Plan",
+        "Business Rules": "Template structure, review cadence, key performance indicators (KPIs). Internal Workday Information.",
+        "Examples of Usage": "Each Partner Manager is responsible for developing a Partner Business Plan with their top 3 partners. The Partner Business Plan outlines co-marketing activities and sales targets.",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "Partner, Channel Manager (Channels Team), Partner Innovation Manager, Partner Manager, Partner Ops Team",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Partner Influenced",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "When a partner significantly impacts the deal but didn't originate the lead. This requires validation from the partner manager and/or the AE that the innovation partner was instrumental in progressing or closing the WD opportunity.",
+        "Business Context/ Purpose": "To recognize and track sales opportunities where a partner played a crucial role in advancing or closing the deal, even if they weren't the original source of the lead. This helps measure the broader impact of partners on sales success.",
+        "Synonyms": "Partner Assist, Co-Sell (influenced)",
+        "Business Rules": "Criteria for significant impact, validation process. Internal Workday Information.",
+        "Examples of Usage": "This deal was marked as Partner Influenced because of the solution demo provided by the partner. We track Partner Influenced revenue to understand ecosystem contributions.",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "Partner, Partner Innovation Pull-Through Revenue, Partner Manager, Partner Sourced",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Partner Innovation Manager",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "Focused on Partner Products/Solutions, they support building new products and solutions on Workday.",
+        "Business Context/ Purpose": "To work with partners to develop new and innovative products, solutions, and integrations that complement and extend the Workday platform, driving greater value for customers and opening new market opportunities.",
+        "Synonyms": "Partner Solution Manager, Partner Technology Manager",
+        "Business Rules": "Engagement models for co-innovation, IP considerations. Internal Workday Information.",
+        "Examples of Usage": "The Partner Innovation Manager is helping a software partner develop a new Workday Extend app. She facilitates workshops between partners and Workday product teams.",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "Partner, Partner Business Plan, Innovation Track, Software Partners - Innovate Partners",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Partner Innovation Pull-Through Revenue",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "When a partner significantly influences the deal but didn't originate the lead.",
+        "Business Context/ Purpose": "To specifically measure revenue generated from deals where a partner's innovative solution or offering (developed through programs like the Innovation Track) was a key factor in winning the business, even if the partner didn't source the lead.",
+        "Synonyms": "Influenced Revenue (by Partner Innovation)",
+        "Business Rules": "Similar to Partner Influenced, but specifically tied to an innovation. Internal Workday Information.",
+        "Examples of Usage": "The new connector developed by our partner led to significant Partner Innovation Pull-Through Revenue this quarter.",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "Partner Influenced, Partner, Innovation Track, Software Partners - Innovate Partners",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Partner Manager",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "Focused on Partners, they support using Workday Partner Programs to source new leads and co-sell with Workday Sellers.",
+        "Business Context/ Purpose": "To manage the relationship with assigned partners, enabling them through Workday's partner programs to generate new sales leads, co-sell with Workday's sales team, and ultimately drive revenue.",
+        "Synonyms": "Partner Account Manager, Alliance Manager",
+        "Business Rules": "Responsibilities include onboarding, enablement, pipeline management. Internal Workday Information.",
+        "Examples of Usage": "Our Partner Manager works closely with GSIs to identify joint selling opportunities. The Partner Manager ensures partners are up-to-date on the latest Workday offerings.",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "Partner, Partner Business Plan, Partner Influenced, Partner Sourced, Advisory Partners, GSI(s)",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Partner Ops Team",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "Focused on Programs, they design and launch Partner Programs, supporting GPO colleagues in working with Partners to onboard and enable them, providing them benefits in exchange targeted Partner behavior. Partner Ops is measured on providing the best Partner experience and long term profitability of Programs.",
+        "Business Context/ Purpose": "To develop, manage, and optimize Workday's partner programs. This team provides the infrastructure, processes, and support necessary for a successful partner ecosystem, focusing on partner experience and program effectiveness.",
+        "Synonyms": "Partner Program Operations",
+        "Business Rules": "Program design principles, benefit structures, performance tracking. Internal Workday Information.",
+        "Examples of Usage": "The Partner Ops Team just launched a new portal for partners. They are responsible for measuring partner satisfaction with our programs.",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "Partner, Partner Business Plan, Badges, Innovation Track, Sales Track, Services Track, Tiers, Tracks",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Partner Sales Executive",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "Support Direct Sellers in co-selling with Partners.",
+        "Business Context/ Purpose": "To act as a liaison and specialist resource for Workday's direct sales team, facilitating and optimizing co-selling activities with partners to close deals more effectively.",
+        "Synonyms": "Channel Sales Specialist (internal facing), Partner Co-sell Specialist",
+        "Business Rules": "Engagement rules between direct sales and partners. Internal Workday Information.",
+        "Examples of Usage": "The Partner Sales Executive helped the Account Executive structure a joint proposal with the GSI. PSEs provide expertise on partner capabilities to the sales team.",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "Partner, Partner Manager, Partner Influenced, Partner Sourced",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Partner Sourced",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "When the deal originates from a lead submitted by a Sales Partner and accepted/converted to a new opportunity.",
+        "Business Context/ Purpose": "To identify and track sales opportunities that were generated directly by a partner who brought the lead to Workday. This measures the direct contribution of partners to pipeline generation.",
+        "Synonyms": "Partner Originated Lead, Referral Lead",
+        "Business Rules": "Lead submission and acceptance criteria. Internal Workday Information.",
+        "Examples of Usage": "Over 30% of our new opportunities last quarter were Partner Sourced. We provide incentives for Partner Sourced deals.",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "Partner, Partner Influenced, Partner Manager, Partner Sourced (Channel), Partner Sourced and Influenced Co-Sell Program",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Partner Sourced (Channel)",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "Legacy Sales partners in our Channel Program who submitted leads where the primary product interest is Adaptive Planning. The lead must be accepted and converted.",
+        "Business Context/ Purpose": "A specific category of partner-sourced leads, typically from historical channel programs, where the main product of interest for the referred customer is Adaptive Planning.",
+        "Synonyms": "Adaptive Planning Referral (Channel)",
+        "Business Rules": "Specific program rules for legacy channel partners. Internal Workday Information.",
+        "Examples of Usage": "This lead for Adaptive Planning came through as Partner Sourced (Channel).",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "Partner Sourced, Channel Manager (Channels Team), Adaptive Planning",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Partner Sourced and Influenced Co-Sell Program",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "Sales Referral Partners who have generated leads, provided pre-sales services, and support Workday sellers by influencing purchase decisions of customers, completing a minimum number of qualified and approved partner contribution activities throughout the life cycle of the opportunity.",
+        "Business Context/ Purpose": "To define a specific partner program where partners not only source leads but also actively participate in the sales cycle by providing pre-sales support and influencing the customer's decision, meeting defined contribution criteria.",
+        "Synonyms": "Co-Sell Referral Program",
+        "Business Rules": "Criteria for qualified and approved partner contribution activities. Internal Workday Information.",
+        "Examples of Usage": "Partners in the Sourced and Influenced Co-Sell Program receive enhanced benefits. This program encourages deeper partner engagement throughout the sales process.",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "Partner Sourced, Partner Influenced, Sales Track",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "S1",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "Stage 1 of the acquisition funnel - qualifying a customer.",
+        "Business Context/ Purpose": "To define the initial stage in the sales or customer acquisition process where potential customers (leads) are evaluated to determine if they are a good fit for Workday's products or services and have a genuine need/interest.",
+        "Synonyms": "Lead Qualification Stage, Discovery Stage",
+        "Business Rules": "Specific criteria for a lead to move from S0 (or equivalent) to S1. Internal Workday Information.",
+        "Examples of Usage": "The SDR team is responsible for moving leads to S1. A prospect enters S1 after an initial qualifying call.",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "S3, Land",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Sales Track",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "The name of the Partner Programs designed to help Partners advise Customers, refer leads to Workday, co-sell with Workday Sellers, Resell Workday and develop business for Workday in new markets.",
+        "Business Context/ Purpose": "To categorize partner programs focused on sales-related activities, such as lead generation, co-selling, reselling, and market development, providing partners with the framework and benefits to engage in these activities.",
+        "Synonyms": "Partner Sales Program",
+        "Business Rules": "Program requirements, benefits, commission structures. Internal Workday Information.",
+        "Examples of Usage": "Partners in the Sales Track receive training on Workday's value proposition. The Partner Sourced and Influenced Co-Sell Program is part of the Sales Track.",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "Partner, Badges, Partner Ops Team, Partner Sourced and Influenced Co-Sell Program, Tracks",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Services Track",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "The name of the Partner Programs designed to help Partners deploy Workday for Customers, provide Workday-proficient staffing for Workday or Customers, manage Workday deployments, and train Customers on Workday.",
+        "Business Context/ Purpose": "To categorize partner programs focused on service delivery, including implementation, staffing, managed services, and training. This ensures customers have access to qualified partners to help them successfully deploy and utilize Workday.",
+        "Synonyms": "Partner Services Program, Delivery Partner Program",
+        "Business Rules": "Certification requirements, service quality standards. Internal Workday Information.",
+        "Examples of Usage": "Partners on the Services Track must have certified Workday consultants. The Services Track includes programs for both implementation and ongoing support partners.",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "Partner, Badges, Partner Ops Team, Advisory Partners, GSI(s), Global Payroll Partners, Industry Accelerator, Managed Service Provided Partners (MSPP), Professional Services Automation (PSA), Tracks",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Software Partners - Innovate Partners",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "Partners that design, build, and deploy solutions to help customers easily integrate and enhance the capabilities of Workday.",
+        "Business Context/ Purpose": "To identify and collaborate with partners (typically ISVs - Independent Software Vendors) who create and offer software solutions that integrate with or extend Workday's functionality, providing customers with enhanced capabilities and tailored solutions.",
+        "Synonyms": "ISV Partners, Technology Partners, App Partners",
+        "Business Rules": "Technical integration standards, certification processes, marketplace rules. Internal Workday Information.",
+        "Examples of Usage": "Our Software Partners - Innovate Partners offer a range of solutions on the Workday Marketplace. We are working with an Innovate Partner to build a custom integration.",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "Partner, Innovation Track, Partner Innovation Manager",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Tiers",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "Internal levels within Programs, based on objective criteria of performance of Partners within that Program. Higher tiers reward Partners with better benefits.",
+        "Business Context/ Purpose": "To structure partner programs by creating different levels (tiers) that partners can achieve based on predefined performance criteria (e.g., revenue, certifications, customer satisfaction). Higher tiers typically offer increased benefits and recognition.",
+        "Synonyms": "Partner Levels, Program Tiers",
+        "Business Rules": "Specific criteria for each tier, benefits associated with each tier. Internal Workday Information.",
+        "Examples of Usage": "Our top-performing partners have achieved the 'Elite' Tier in our program. Partners in higher Tiers get dedicated support and co-marketing funds.",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "Partner, Badges, Partner Ops Team, Innovation Track, Sales Track, Services Track, Tracks",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Tracks",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "A collection of Programs that incentivize Partners to Build, Grow and Delivery with Workday.",
+        "Business Context/ Purpose": "To group related partner programs under broader themes or categories (e.g., building solutions, growing sales, delivering services). This provides a clear structure for partners to understand and engage with different types of Workday initiatives.",
+        "Synonyms": "Partner Program Categories, Program Pillars",
+        "Business Rules": "Specific programs included in each track. Internal Workday Information.",
+        "Examples of Usage": "Workday's partner ecosystem is organized into three main Tracks: Build, Sell, and Service. (Example, actual tracks might differ from Build, Grow, Delivery) Each Track has its own set of benefits and requirements for partners.",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "Partner, Partner Ops Team, Innovation Track, Sales Track, Services Track, Tiers",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "New Offering Launch",
+        "Acronyms & Abbreviations": "NOL",
+        "Partner Owned": "x",
+        "Business Definition": "",
+        "Business Context/ Purpose": "",
+        "Synonyms": "",
+        "Business Rules": "",
+        "Examples of Usage": "",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Partner Collaboration Program",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "",
+        "Business Context/ Purpose": "",
+        "Synonyms": "",
+        "Business Rules": "",
+        "Examples of Usage": "",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Competancy",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "",
+        "Business Context/ Purpose": "",
+        "Synonyms": "",
+        "Business Rules": "",
+        "Examples of Usage": "",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Deployment Quality Metrics",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "",
+        "Business Context/ Purpose": "",
+        "Synonyms": "",
+        "Business Rules": "",
+        "Examples of Usage": "",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Post Go Live Survey",
+        "Acronyms & Abbreviations": "PGL",
+        "Partner Owned": "x",
+        "Business Definition": "",
+        "Business Context/ Purpose": "",
+        "Synonyms": "",
+        "Business Rules": "",
+        "Examples of Usage": "",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Partner Governance Council",
+        "Acronyms & Abbreviations": "PGC",
+        "Partner Owned": "x",
+        "Business Definition": "",
+        "Business Context/ Purpose": "",
+        "Synonyms": "",
+        "Business Rules": "",
+        "Examples of Usage": "",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    },
+    {
+        "Term Name": "Scorecard Compliance",
+        "Acronyms & Abbreviations": "",
+        "Partner Owned": "x",
+        "Business Definition": "",
+        "Business Context/ Purpose": "",
+        "Synonyms": "",
+        "Business Rules": "",
+        "Examples of Usage": "",
+        "Business Owner": "",
+        "Data Steward": "",
+        "Related Business Terms": "",
+        "Parent Terms": "",
+        "Child Terms": "",
+        "Last Reviewed Date": "",
+        "Approval Status": ""
+    }
+];
+
+        let filteredData = [...glossaryData];
+        let currentLetter = '';
+
+        function initializeGlossary() {
+            generateAlphabetNav();
+            renderGlossary();
+            updateStats();
+            setupSearchListener();
+        }
+
+        function generateAlphabetNav() {
+            const letters = new Set();
+            glossaryData.forEach(term => {
+                const firstLetter = term["Term Name"].charAt(0).toUpperCase();
+                letters.add(firstLetter);
+            });
+
+            const sortedLetters = Array.from(letters).sort();
+            const navHtml = sortedLetters.map(letter => 
+                `<div class="letter-btn" onclick="showLetter('${letter}')">${letter}</div>`
+            ).join('');
+
+            document.getElementById('alphabetNav').innerHTML = navHtml;
+        }
+
+        function showLetter(letter) {
+            // Update active letter button
+            document.querySelectorAll('.letter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Filter and display terms for this letter
+            currentLetter = letter;
+            filteredData = glossaryData.filter(term => 
+                term["Term Name"].charAt(0).toUpperCase() === letter
+            );
+            renderGlossary();
+            document.getElementById('noResults').style.display = 'none';
+        }
+
+        function renderGlossary() {
+            const content = document.getElementById('glossaryContent');
+            
+            if (filteredData.length === 0) {
+                content.innerHTML = '';
+                document.getElementById('noResults').style.display = 'block';
+                return;
+            }
+
+            document.getElementById('noResults').style.display = 'none';
+
+            const groupedData = {};
+            filteredData.forEach(term => {
+                const firstLetter = term["Term Name"].charAt(0).toUpperCase();
+                if (!groupedData[firstLetter]) {
+                    groupedData[firstLetter] = [];
+                }
+                groupedData[firstLetter].push(term);
+            });
+
+            const sectionsHtml = Object.keys(groupedData).sort().map(letter => {
+                const terms = groupedData[letter].sort((a, b) => 
+                    a["Term Name"].localeCompare(b["Term Name"])
+                );
+                
+                const termsHtml = terms.map(term => generateTermCard(term)).join('');
+                
+                return `
+                    <div class="letter-section ${currentLetter === letter ? 'active' : ''}">
+                        <div class="letter-title">Letter ${letter}</div>
+                        ${termsHtml}
+                    </div>
+                `;
+            }).join('');
+
+            content.innerHTML = sectionsHtml;
+        }
+
+        function generateTermCard(term) {
+            const termId = term["Term Name"].replace(/\s+/g, '-').toLowerCase();
+            
+            return `
+                <div class="term-card">
+                    <div class="term-header" onclick="toggleTerm('${termId}')">
+                        <div class="term-name">${term["Term Name"]}</div>
+                        <div class="term-preview">${term["Business Definition"] || 'No definition available'}</div>
+                    </div>
+                    <div class="term-content" id="${termId}">
+                        ${generateBusinessDefinitions(term)}
+                        ${generateOwnershipStewardship(term)}
+                        ${generateRelationshipsHierarchy(term)}
+                        ${generateGovernanceInfo(term)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateBusinessDefinitions(term) {
+            return `
+                <div class="category">
+                    <div class="category-title">
+                        <span class="category-icon">📚</span>
+                        Clear and Concise Business Definitions
+                    </div>
+                    ${generateField("Term Name", term["Term Name"])}
+                    ${generateField("Business Definition", term["Business Definition"])}
+                    ${generateField("Business Context/Purpose", term["Business Context/ Purpose"])}
+                    ${generateField("Synonyms/Acronyms", [term["Synonyms"], term["Acronyms & Abbreviations"]].filter(Boolean).join(", "))}
+                    ${generateField("Business Rules", term["Business Rules"])}
+                    ${generateField("Examples of Usage", term["Examples of Usage"])}
+                </div>
+            `;
+        }
+
+        function generateOwnershipStewardship(term) {
+            return `
+                <div class="category">
+                    <div class="category-title">
+                        <span class="category-icon">👥</span>
+                        Ownership and Stewardship
+                    </div>
+                    ${generateField("Business Owner", term["Business Owner"])}
+                    ${generateField("Data Steward", term["Data Steward"])}
+                </div>
+            `;
+        }
+
+        function generateRelationshipsHierarchy(term) {
+            return `
+                <div class="category">
+                    <div class="category-title">
+                        <span class="category-icon">🔗</span>
+                        Relationships and Hierarchy
+                    </div>
+                    ${generateField("Related Business Terms", term["Related Business Terms"], true)}
+                    ${generateField("Parent Terms", term["Parent Terms"], true)}
+                    ${generateField("Child Terms", term["Child Terms"], true)}
+                </div>
+            `;
+        }
+
+        function generateGovernanceInfo(term) {
+            return `
+                <div class="category">
+                    <div class="category-title">
+                        <span class="category-icon">⚖️</span>
+                        Governance Information
+                    </div>
+                    ${generateField("Last Reviewed Date", term["Last Reviewed Date"])}
+                    ${generateField("Approval Status", term["Approval Status"])}
+                </div>
+            `;
+        }
+
+        function generateField(label, value, asTags = false) {
+            if (!value || value.trim() === '') {
+                return `
+                    <div class="field-group">
+                        <label class="field-label">${label}:</label>
+                        <div class="field-value empty">Not specified</div>
+                    </div>
+                `;
+            }
+
+            if (asTags && value.includes(',')) {
+                const tags = value.split(',').map(tag => tag.trim()).filter(Boolean);
+                const tagsHtml = tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+                return `
+                    <div class="field-group">
+                        <label class="field-label">${label}:</label>
+                        <div class="field-value">
+                            <div class="tags">${tagsHtml}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="field-group">
+                    <label class="field-label">${label}:</label>
+                    <div class="field-value">${value}</div>
+                </div>
+            `;
+        }
+
+        function toggleTerm(termId) {
+            const content = document.getElementById(termId);
+            const isActive = content.classList.contains('active');
+            
+            if (isActive) {
+                content.classList.remove('active');
+            } else {
+                content.classList.add('active');
+            }
+        }
+
+        function expandAll() {
+            document.querySelectorAll('.term-content').forEach(content => {
+                content.classList.add('active');
+            });
+        }
+
+        function collapseAll() {
+            document.querySelectorAll('.term-content').forEach(content => {
+                content.classList.remove('active');
+            });
+        }
+
+        function setupSearchListener() {
+            const searchBox = document.getElementById('searchBox');
+            searchBox.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                
+                if (searchTerm === '') {
+                    filteredData = [...glossaryData];
+                } else {
+                    filteredData = glossaryData.filter(term => {
+                        const searchableText = [
+                            term["Term Name"],
+                            term["Business Definition"],
+                            term["Business Context/ Purpose"],
+                            term["Synonyms"],
+                            term["Acronyms & Abbreviations"],
+                            term["Examples of Usage"]
+                        ].join(' ').toLowerCase();
+                        
+                        return searchableText.includes(searchTerm);
+                    });
+                }
+                
+                // Clear letter selection when searching
+                if (searchTerm !== '') {
+                    currentLetter = '';
+                    document.querySelectorAll('.letter-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                }
+                
+                renderGlossary();
+                updateStats();
+            });
+        }
+
+        function updateStats() {
+            document.getElementById('totalTerms').textContent = filteredData.length;
+        }
+
+        // Initialize the glossary when page loads
+        document.addEventListener('DOMContentLoaded', initializeGlossary);
+    </script>
+</body>
+</html>

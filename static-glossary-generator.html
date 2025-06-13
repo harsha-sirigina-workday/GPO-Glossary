@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Static Glossary Generator</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        .instructions {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #007bff;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 300px;
+            padding: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 1rem 0;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        .output {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 2rem;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .copy-btn {
+            background: #28a745;
+            margin-top: 1rem;
+        }
+        
+        .copy-btn:hover {
+            background: #218838;
+        }
+        
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+        
+        .success {
+            color: #155724;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Static Glossary Generator (CMS Widget Compatible)</h1>
+        
+        <div class="instructions">
+            <h3>This tool generates HTML that works in CMS widgets without JavaScript</h3>
+            <ol>
+                <li>Paste your converted JSON data (from the CSV converter) below</li>
+                <li>Click "Generate Static HTML"</li>
+                <li>Copy the generated HTML</li>
+                <li>Paste it directly into your CMS HTML widget</li>
+            </ol>
+            <p><strong>Note:</strong> This creates fully static HTML with all terms visible. No JavaScript required!</p>
+        </div>
+        
+        <h3>Paste your JSON data here:</h3>
+        <textarea id="jsonInput" placeholder='Paste your glossaryData JSON here, starting with [
+  {
+    "Term Name": "...",
+    ...
+  }
+]'></textarea>
+        
+        <button onclick="generateStaticHTML()">Generate Static HTML</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function generateStaticHTML() {
+            const jsonData = document.getElementById('jsonInput').value.trim();
+            const resultDiv = document.getElementById('result');
+            
+            if (!jsonData) {
+                resultDiv.innerHTML = '<div class="error">Please paste your JSON data first.</div>';
+                return;
+            }
+            
+            try {
+                // Parse the JSON data
+                let glossaryData;
+                if (jsonData.startsWith('const glossaryData = ')) {
+                    // Extract JSON from the const declaration
+                    const jsonPart = jsonData.replace('const glossaryData = ', '').replace(/;$/, '');
+                    glossaryData = JSON.parse(jsonPart);
+                } else {
+                    glossaryData = JSON.parse(jsonData);
+                }
+                
+                // Generate static HTML
+                const staticHTML = generateGlossaryHTML(glossaryData);
+                
+                resultDiv.innerHTML = `
+                    <div class="success">Successfully generated static HTML for ${glossaryData.length} terms!</div>
+                    <h3>Generated HTML (Copy this into your CMS widget):</h3>
+                    <div class="output" id="outputCode">${escapeHtml(staticHTML)}</div>
+                    <button class="copy-btn" onclick="copyToClipboard()">Copy HTML</button>
+                    <div class="instructions">
+                        <h4>Usage Instructions:</h4>
+                        <ol>
+                            <li>Copy the HTML code above</li>
+                            <li>Go to your CMS/widget editor</li>
+                            <li>Paste the HTML directly into an HTML widget</li>
+                            <li>Save/publish - it should work immediately!</li>
+                        </ol>
+                    </div>
+                `;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error parsing JSON: ${error.message}</div>`;
+            }
+        }
+        
+                 function generateGlossaryHTML(glossaryData) {
+             // Group data by first letter
+             const groupedData = {};
+             glossaryData.forEach(term => {
+                 const firstLetter = term["Term Name"]?.charAt(0).toUpperCase() || 'Z';
+                 if (!groupedData[firstLetter]) {
+                     groupedData[firstLetter] = [];
+                 }
+                 groupedData[firstLetter].push(term);
+             });
+             
+             // Generate complete A-Z alphabet
+             const allLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+             
+             // Ensure all letters exist in groupedData (even if empty)
+             allLetters.forEach(letter => {
+                 if (!groupedData[letter]) {
+                     groupedData[letter] = [];
+                 }
+             });
+            
+            let html = `
+ <style>
+     .gpo-glossary {
+         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+         max-width: 900px;
+         margin: 0 auto;
+         padding: 20px;
+         line-height: 1.6;
+         color: #333;
+         background: white;
+     }
+         .gpo-header {
+         background: white;
+         color: #1C98E8;
+         padding: 2rem;
+         margin-bottom: 2rem;
+         text-align: center;
+     }
+    .gpo-title {
+        font-size: 2.5rem;
+        margin: 0 0 0.5rem 0;
+        color: #1C98E8;
+    }
+    .gpo-subtitle {
+        font-size: 1.2rem;
+        margin: 0;
+        color: #6c757d !important;
+    }
+         .gpo-alphabet-nav {
+         margin: 2rem 0;
+         padding: 1rem 0;
+         text-align: center;
+     }
+     .gpo-alphabet-row {
+         display: flex;
+         justify-content: center;
+         gap: 20px;
+         flex-wrap: wrap;
+     }
+          .gpo-letter-btn {
+         padding: 8px 4px;
+         background: transparent;
+         border: none;
+         font-weight: 600;
+         text-align: center;
+         text-decoration: none;
+         color: #F38B00;
+         transition: all 0.2s ease;
+         font-size: 1rem;
+         cursor: pointer;
+     }
+     .gpo-letter-btn:hover {
+         text-decoration: none;
+         color: #1C98E8;
+         transform: scale(1.1);
+     }
+     .gpo-letter-btn.empty {
+         color: #adb5bd;
+         cursor: default;
+     }
+     .gpo-letter-btn.empty:hover {
+         color: #adb5bd;
+         transform: none;
+     }
+     .gpo-letter-btn.active {
+         color: #1C98E8;
+         font-weight: 700;
+     }
+         .gpo-letter-section {
+         margin: 2rem 0;
+         background: #f8f9fa;
+         border-radius: 12px;
+         padding: 1.5rem;
+         border: 1px solid #e9ecef;
+         display: flex;
+         align-items: flex-start;
+         gap: 1.5rem;
+     }
+     .gpo-letter-section.empty {
+         background: #f8f9fa;
+         border: 1px dashed #dee2e6;
+     }
+     .gpo-letter-header {
+         flex-shrink: 0;
+         width: 60px;
+         text-align: center;
+     }
+     .gpo-letter-symbol {
+         font-size: 3rem;
+         font-weight: 900;
+         color: #F38B00;
+         line-height: 1;
+         margin-bottom: 0.25rem;
+     }
+     .gpo-letter-count {
+         font-size: 0.8rem;
+         color: #6c757d;
+         font-weight: 500;
+     }
+     .gpo-letter-container {
+         flex: 1;
+     }
+     .gpo-letter-container.empty {
+         text-align: center;
+         padding: 2rem 0;
+         color: #6c757d;
+         font-style: italic;
+     }
+         .gpo-term-card {
+         background: white;
+         border-radius: 8px;
+         margin-bottom: 0.5rem;
+         border: 1px solid #e9ecef;
+         overflow: hidden;
+         transition: all 0.2s ease;
+         position: relative;
+     }
+     .gpo-term-card:hover {
+         border-color: #1C98E8;
+         box-shadow: 0 2px 8px rgba(28, 152, 232, 0.15);
+         transform: translateY(-1px);
+     }
+     .gpo-term-details {
+         border: none;
+         margin: 0;
+         padding: 0;
+     }
+     .gpo-term-header {
+         padding: 0.5rem 0.75rem;
+         background: white;
+         cursor: pointer;
+         transition: background-color 0.2s ease;
+         list-style: none;
+         outline: none;
+         position: relative;
+         min-height: 60px;
+         display: flex;
+         flex-direction: column;
+         justify-content: flex-start;
+     }
+     .gpo-term-header:hover {
+         background: #f8f9fa;
+     }
+     .gpo-term-header::-webkit-details-marker {
+         display: none;
+     }
+     .gpo-term-header::before {
+         content: '▶';
+         position: absolute;
+         right: 0.75rem;
+         top: 0.5rem;
+         color: #F38B00;
+         font-size: 0.9rem;
+         transition: transform 0.2s ease;
+     }
+     .gpo-term-details[open] .gpo-term-header::before {
+         transform: rotate(90deg);
+     }
+     .gpo-term-name {
+         font-size: 1rem;
+         font-weight: 600;
+         color: #1C98E8;
+         margin: 0 0 0.15rem 0;
+         line-height: 1.2;
+         padding-right: 1.5rem;
+     }
+     .gpo-term-preview {
+         color: #6c757d;
+         font-size: 0.85rem;
+         margin: 0;
+         line-height: 1.25;
+         padding-right: 1.5rem;
+         display: -webkit-box;
+         -webkit-line-clamp: 2;
+         -webkit-box-orient: vertical;
+         overflow: hidden;
+         text-overflow: ellipsis;
+         max-height: 2.5rem;
+     }
+     .gpo-term-content {
+         padding: 1rem;
+         background: white;
+     }
+    .gpo-category {
+        margin-bottom: 2rem;
+    }
+    .gpo-category-details {
+        border: none;
+        margin: 0;
+        padding: 0;
+    }
+    .gpo-category-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #0057AE;
+        margin-bottom: 1rem;
+        padding: 0.5rem 0;
+        border-bottom: 2px solid #1C98E8;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        list-style: none;
+        outline: none;
+        position: relative;
+        transition: color 0.3s ease;
+    }
+    .gpo-category-title:hover {
+        color: #1C98E8;
+    }
+    .gpo-category-title::-webkit-details-marker {
+        display: none;
+    }
+    .gpo-category-title::before {
+        content: '▶';
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #F38B00;
+        font-size: 1rem;
+        transition: transform 0.3s ease;
+    }
+    .gpo-category-details[open] .gpo-category-title::before {
+        transform: translateY(-50%) rotate(90deg);
+    }
+    .gpo-category-icon {
+        margin-right: 0.5rem;
+        font-size: 1.2rem;
+    }
+    .gpo-category-content {
+        padding-top: 1rem;
+    }
+    .gpo-field-group {
+        margin-bottom: 1.5rem;
+    }
+    .gpo-field-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    .gpo-field-value {
+        color: #6c757d;
+        padding: 0.5rem;
+        background: rgba(28, 152, 232, 0.05);
+        border-radius: 6px;
+        border-left: 4px solid #1C98E8;
+    }
+    .gpo-field-value.empty {
+        color: #adb5bd;
+        font-style: italic;
+    }
+    .gpo-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    .gpo-tag {
+        background: #F38B00;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    @media (max-width: 768px) {
+        .gpo-glossary { padding: 10px; }
+        .gpo-title { font-size: 2rem; }
+        .gpo-alphabet-nav { gap: 3px; }
+        .gpo-letter-btn { padding: 8px 12px; min-width: 40px; font-size: 0.9rem; }
+        .gpo-term-name { font-size: 1.3rem; }
+    }
+</style>
+
+ <div class="gpo-glossary">
+     <div class="gpo-header">
+         <h1 class="gpo-title">GPO Glossary</h1>
+         <p class="gpo-subtitle">Global Partners Organization - Business Terms & Definitions</p>
+     </div>
+     
+     <div class="gpo-alphabet-nav">
+         <div class="gpo-alphabet-row">
+             ${allLetters.map(letter => {
+                 const isEmpty = groupedData[letter].length === 0;
+                 return `<a href="#letter-${letter}" class="gpo-letter-btn ${isEmpty ? 'empty' : ''}">${letter}</a>`;
+             }).join('')}
+         </div>
+     </div>
+`;
+
+                         // Generate content for each letter
+             allLetters.forEach(letter => {
+                 const terms = groupedData[letter].sort((a, b) => 
+                     (a["Term Name"] || '').localeCompare(b["Term Name"] || '')
+                 );
+                 
+                 if (terms.length === 0) {
+                     // Empty letter section
+                     html += `
+         <div class="gpo-letter-section empty" id="letter-${letter}">
+             <div class="gpo-letter-header">
+                 <div class="gpo-letter-symbol">${letter}</div>
+                 <div class="gpo-letter-count">0 terms</div>
+             </div>
+             <div class="gpo-letter-container empty">
+                 No terms available for this letter.
+             </div>
+         </div>
+`;
+                 } else {
+                     // Letter section with terms
+                     const termText = terms.length === 1 ? 'term' : 'terms';
+                     html += `
+         <div class="gpo-letter-section" id="letter-${letter}">
+             <div class="gpo-letter-header">
+                 <div class="gpo-letter-symbol">${letter}</div>
+                 <div class="gpo-letter-count">${terms.length} ${termText}</div>
+             </div>
+             <div class="gpo-letter-container">
+`;
+                     
+                     terms.forEach(term => {
+                         html += generateTermHTML(term);
+                     });
+                     
+                     html += `            </div>
+         </div>
+`;
+                 }
+             });
+             
+             html += ` </div>`;
+            
+            return html;
+        }
+        
+                 function generateTermHTML(term) {
+             return `        <div class="gpo-term-card">
+             <details class="gpo-term-details">
+                 <summary class="gpo-term-header">
+                     <h3 class="gpo-term-name">${escapeHtml(term["Term Name"] || 'Unnamed Term')}</h3>
+                     <p class="gpo-term-preview">${escapeHtml(term["Business Definition"] || 'No definition available')}</p>
+                 </summary>
+                 <div class="gpo-term-content">
+                     ${generateBusinessDefinitionsHTML(term)}
+                     ${generateOwnershipStewardshipHTML(term)}
+                     ${generateRelationshipsHierarchyHTML(term)}
+                     ${generateGovernanceInfoHTML(term)}
+                 </div>
+             </details>
+         </div>
+`;
+         }
+        
+        function generateBusinessDefinitionsHTML(term) {
+            return `                <div class="gpo-category">
+                    <details class="gpo-category-details">
+                        <summary class="gpo-category-title">
+                            <span class="gpo-category-icon">📚</span>
+                            Clear and Concise Business Definitions
+                        </summary>
+                        <div class="gpo-category-content">
+                            ${generateFieldHTML("Term Name", term["Term Name"])}
+                            ${generateFieldHTML("Business Definition", term["Business Definition"])}
+                            ${generateFieldHTML("Business Context/Purpose", term["Business Context/ Purpose"])}
+                            ${generateFieldHTML("Synonyms/Acronyms", [term["Synonyms"], term["Acronyms & Abbreviations"]].filter(Boolean).join(", "))}
+                            ${generateFieldHTML("Business Rules", term["Business Rules"])}
+                            ${generateFieldHTML("Examples of Usage", term["Examples of Usage"])}
+                        </div>
+                    </details>
+                </div>
+`;
+        }
+        
+        function generateOwnershipStewardshipHTML(term) {
+            return `                <div class="gpo-category">
+                    <details class="gpo-category-details">
+                        <summary class="gpo-category-title">
+                            <span class="gpo-category-icon">👥</span>
+                            Ownership and Stewardship
+                        </summary>
+                        <div class="gpo-category-content">
+                            ${generateFieldHTML("Business Owner", term["Business Owner"])}
+                            ${generateFieldHTML("Data Steward", term["Data Steward"])}
+                        </div>
+                    </details>
+                </div>
+`;
+        }
+        
+        function generateRelationshipsHierarchyHTML(term) {
+            return `                <div class="gpo-category">
+                    <details class="gpo-category-details">
+                        <summary class="gpo-category-title">
+                            <span class="gpo-category-icon">🔗</span>
+                            Relationships and Hierarchy
+                        </summary>
+                        <div class="gpo-category-content">
+                            ${generateFieldHTML("Related Business Terms", term["Related Business Terms"], true)}
+                            ${generateFieldHTML("Parent Terms", term["Parent Terms"], true)}
+                            ${generateFieldHTML("Child Terms", term["Child Terms"], true)}
+                        </div>
+                    </details>
+                </div>
+`;
+        }
+        
+        function generateGovernanceInfoHTML(term) {
+            return `                <div class="gpo-category">
+                    <details class="gpo-category-details">
+                        <summary class="gpo-category-title">
+                            <span class="gpo-category-icon">⚖️</span>
+                            Governance Information
+                        </summary>
+                        <div class="gpo-category-content">
+                            ${generateFieldHTML("Last Reviewed Date", term["Last Reviewed Date"])}
+                            ${generateFieldHTML("Approval Status", term["Approval Status"])}
+                        </div>
+                    </details>
+                </div>
+`;
+        }
+        
+        function generateFieldHTML(label, value, asTags = false) {
+            if (!value || value.trim() === '') {
+                return `                    <div class="gpo-field-group">
+                        <label class="gpo-field-label">${escapeHtml(label)}:</label>
+                        <div class="gpo-field-value empty">Not specified</div>
+                    </div>
+`;
+            }
+            
+            if (asTags && value.includes(',')) {
+                const tags = value.split(',').map(tag => tag.trim()).filter(Boolean);
+                const tagsHTML = tags.map(tag => `<span class="gpo-tag">${escapeHtml(tag)}</span>`).join('');
+                return `                    <div class="gpo-field-group">
+                        <label class="gpo-field-label">${escapeHtml(label)}:</label>
+                        <div class="gpo-field-value">
+                            <div class="gpo-tags">${tagsHTML}</div>
+                        </div>
+                    </div>
+`;
+            }
+            
+            return `                    <div class="gpo-field-group">
+                        <label class="gpo-field-label">${escapeHtml(label)}:</label>
+                        <div class="gpo-field-value">${escapeHtml(value)}</div>
+                    </div>
+`;
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function copyToClipboard() {
+            const outputCode = document.getElementById('outputCode');
+            const textArea = document.createElement('textarea');
+            textArea.value = outputCode.textContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            // Show feedback
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = 'Copied!';
+            btn.style.background = '#20c997';
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '#28a745';
+            }, 2000);
+        }
+    </script>
+</body>
+</html> 
