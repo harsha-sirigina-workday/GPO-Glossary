@@ -630,34 +630,34 @@ Term Name | Acronyms & Abbreviations | Partner Owned | Business Definition | Bus
                                                                          <div class="gpo-category-content">
                                          <div class="gpo-field-group">
                                              <label class="gpo-field-label">Business Definition:</label>
-                                             <div class="gpo-field-value ${businessDef ? '' : 'empty'}">
+                                             <div class="gpo-field-value">
                                                  ${businessDef || 'No definition provided'}
                                              </div>
                                          </div>
-                                         <div class="gpo-field-group">
+                                         ${acronyms ? `<div class="gpo-field-group">
                                              <label class="gpo-field-label">Acronyms & Abbreviations:</label>
-                                             <div class="gpo-field-value ${acronyms ? '' : 'empty'}">
-                                                 ${acronyms || 'No acronyms'}
+                                             <div class="gpo-field-value">
+                                                 ${acronyms}
                                              </div>
-                                         </div>
-                                         <div class="gpo-field-group">
+                                         </div>` : ''}
+                                         ${businessContext ? `<div class="gpo-field-group">
                                              <label class="gpo-field-label">Business Context/ Purpose:</label>
-                                             <div class="gpo-field-value ${businessContext ? '' : 'empty'}">
-                                                 ${businessContext || 'No context provided'}
+                                             <div class="gpo-field-value">
+                                                 ${businessContext}
                                              </div>
-                                         </div>
-                                         <div class="gpo-field-group">
+                                         </div>` : ''}
+                                         ${businessRules ? `<div class="gpo-field-group">
                                              <label class="gpo-field-label">Business Rules:</label>
-                                             <div class="gpo-field-value ${businessRules ? '' : 'empty'}">
-                                                 ${businessRules || 'No business rules specified'}
+                                             <div class="gpo-field-value">
+                                                 ${businessRules}
                                              </div>
-                                         </div>
-                                         <div class="gpo-field-group">
+                                         </div>` : ''}
+                                         ${examplesOfUsage ? `<div class="gpo-field-group">
                                              <label class="gpo-field-label">Examples of Usage:</label>
-                                             <div class="gpo-field-value ${examplesOfUsage ? '' : 'empty'}">
-                                                 ${examplesOfUsage || 'No examples provided'}
+                                             <div class="gpo-field-value">
+                                                 ${examplesOfUsage}
                                              </div>
-                                         </div>
+                                         </div>` : ''}
                                      </div>
                                 </details>
                             </div>
@@ -669,18 +669,18 @@ Term Name | Acronyms & Abbreviations | Partner Owned | Business Definition | Bus
                                         Ownership and Stewardship
                                     </summary>
                                                                          <div class="gpo-category-content">
-                                         <div class="gpo-field-group">
+                                         ${termOwner ? `<div class="gpo-field-group">
                                              <label class="gpo-field-label">Business Owner:</label>
-                                             <div class="gpo-field-value ${termOwner ? '' : 'empty'}">
-                                                 ${termOwner || 'No owner assigned'}
+                                             <div class="gpo-field-value">
+                                                 ${termOwner}
                                              </div>
-                                         </div>
-                                         <div class="gpo-field-group">
+                                         </div>` : ''}
+                                         ${termSteward ? `<div class="gpo-field-group">
                                              <label class="gpo-field-label">Data Steward:</label>
-                                             <div class="gpo-field-value ${termSteward ? '' : 'empty'}">
-                                                 ${termSteward || 'No steward assigned'}
+                                             <div class="gpo-field-value">
+                                                 ${termSteward}
                                              </div>
-                                         </div>
+                                         </div>` : ''}
                                      </div>
                                 </details>
                             </div>
@@ -691,32 +691,32 @@ Term Name | Acronyms & Abbreviations | Partner Owned | Business Definition | Bus
                                         <span class="gpo-category-icon">🔗</span>
                                         Relationships and Hierarchy
                                     </summary>
-                                    <div class="gpo-category-content">
-                                                                                 <div class="gpo-field-group">
+                                                                         <div class="gpo-category-content">
+                                         ${relatedTerms ? `<div class="gpo-field-group">
                                              <label class="gpo-field-label">Related Business Terms:</label>
-                                             <div class="gpo-field-value ${relatedTerms ? '' : 'empty'}">
-                                                 ${relatedTerms || 'No related terms'}
+                                             <div class="gpo-field-value">
+                                                 ${relatedTerms}
                                              </div>
-                                         </div>
-                                        <div class="gpo-field-group">
-                                            <label class="gpo-field-label">Parent Terms:</label>
-                                            <div class="gpo-field-value ${parentTerms ? '' : 'empty'}">
-                                                ${parentTerms || 'No parent terms'}
-                                            </div>
-                                        </div>
-                                        <div class="gpo-field-group">
-                                            <label class="gpo-field-label">Child Terms:</label>
-                                            <div class="gpo-field-value ${childTerms ? '' : 'empty'}">
-                                                ${childTerms || 'No child terms'}
-                                            </div>
-                                        </div>
-                                                                                 <div class="gpo-field-group">
+                                         </div>` : ''}
+                                         ${parentTerms ? `<div class="gpo-field-group">
+                                             <label class="gpo-field-label">Parent Terms:</label>
+                                             <div class="gpo-field-value">
+                                                 ${parentTerms}
+                                             </div>
+                                         </div>` : ''}
+                                         ${childTerms ? `<div class="gpo-field-group">
+                                             <label class="gpo-field-label">Child Terms:</label>
+                                             <div class="gpo-field-value">
+                                                 ${childTerms}
+                                             </div>
+                                         </div>` : ''}
+                                         ${synonyms ? `<div class="gpo-field-group">
                                              <label class="gpo-field-label">Synonyms:</label>
-                                             <div class="gpo-field-value ${synonyms ? '' : 'empty'}">
-                                                 ${synonyms || 'No synonyms'}
+                                             <div class="gpo-field-value">
+                                                 ${synonyms}
                                              </div>
-                                         </div>
-                                    </div>
+                                         </div>` : ''}
+                                     </div>
                                 </details>
                             </div>
 
@@ -727,18 +727,18 @@ Term Name | Acronyms & Abbreviations | Partner Owned | Business Definition | Bus
                                         Governance Information
                                     </summary>
                                                                          <div class="gpo-category-content">
-                                         <div class="gpo-field-group">
+                                         ${approvalStatus ? `<div class="gpo-field-group">
                                              <label class="gpo-field-label">Approval Status:</label>
-                                             <div class="gpo-field-value ${approvalStatus ? '' : 'empty'}">
-                                                 ${approvalStatus || 'Not specified'}
+                                             <div class="gpo-field-value">
+                                                 ${approvalStatus}
                                              </div>
-                                         </div>
-                                         <div class="gpo-field-group">
+                                         </div>` : ''}
+                                         ${lastReviewedDate ? `<div class="gpo-field-group">
                                              <label class="gpo-field-label">Last Reviewed Date:</label>
-                                             <div class="gpo-field-value ${lastReviewedDate ? '' : 'empty'}">
-                                                 ${lastReviewedDate || 'No review date'}
+                                             <div class="gpo-field-value">
+                                                 ${lastReviewedDate}
                                              </div>
-                                         </div>
+                                         </div>` : ''}
                                      </div>
                                 </details>
                             </div>
